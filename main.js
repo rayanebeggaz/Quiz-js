@@ -12,13 +12,17 @@ function startQuiz() {
   let currentQuestion = 0;
 
   displayQuestion(app, currentQuestion);
+
   function displayQuestion(app, currentQuestion) {
     clear(app);
     header(app);
+    const progressBar = getProgressBar(Questions.length, currentQuestion);
+    app.appendChild(progressBar);
     const question = Questions[currentQuestion];
 
     if (!question) {
-      //f
+      displayFinishMessage();
+      return;
     }
 
     const titre = getElementTitle(question.question);
@@ -33,6 +37,7 @@ function startQuiz() {
 
   function submit() {
     const selectedAnswer = app.querySelector('input[name="answer"]:checked');
+    disableAnswer();
     const value = selectedAnswer.value;
     console.log(Questions.length);
     console.log(currentQuestion - 1);
@@ -43,12 +48,26 @@ function startQuiz() {
       score++;
     }
     showFeedBack(isCorrect, question.correct, value);
-    const message = feedBackMessage(isCorrect, question.correct);
-    app.appendChild(message);
-    setTimeout(() => {
+    displayNextQuestionButton(() => {
       currentQuestion++;
       displayQuestion(app, currentQuestion);
-    }, 4000);
+    });
+    const message = feedBackMessage(isCorrect, question.correct);
+    app.appendChild(message);
+  }
+  function disableAnswer() {
+    const inputs = document.querySelectorAll('input[type="radio"]');
+    for (const input of inputs) {
+      input.disabled = true;
+    }
+  }
+  function displayFinishMessage() {
+    const h1 = document.createElement("h1");
+    h1.innerText = "Bravo tu as terminé le Quiz ";
+    const paragraphe = document.createElement("p");
+    paragraphe.innerText = `Tu as eu ${score} sur ${Questions.length} points`;
+    app.appendChild(h1);
+    app.appendChild(paragraphe);
   }
 }
 
@@ -56,6 +75,13 @@ function clear(app) {
   while (app.firstChild) {
     app.firstChild.remove();
   }
+}
+
+function getProgressBar(max, valeu) {
+  const progress = document.createElement("progress");
+  progress.setAttribute("max", max);
+  progress.setAttribute("value", valeu);
+  return progress;
 }
 
 function header(app) {
@@ -93,12 +119,14 @@ function getElementTitle(texte) {
   element.innerText = texte;
   return element;
 }
-
+function formatId(text) {
+  return text.replaceAll(" ", "-").replaceAll('"', "'").toLowerCase();
+}
 function getAnswerElement(text) {
   const label = document.createElement("label");
   label.innerText = text;
   const input = document.createElement("input");
-  const id = text.replaceAll(" ", "-").toLowerCase();
+  const id = formatId(text);
 
   input.id = id;
   label.htmlFor = id;
@@ -110,13 +138,41 @@ function getAnswerElement(text) {
   return label;
 }
 
+function displayNextQuestionButton(callback) {
+  const TIMEOUT = 4000;
+  let timeout = 4000;
+
+  let button = app.querySelector("button");
+  button.remove();
+  button = document.createElement("button");
+  const getButtonTxt = () => `Next (${timeout / 1000}s)`;
+  app.appendChild(button);
+  button.innerText = getButtonTxt();
+
+  const nextQuestion = () => {
+    clearInterval(interval);
+    clearTimeout(timeoutEvent);
+    callback();
+  };
+
+  const interval = setInterval(() => {
+    timeout -= 1000;
+    button.innerText = getButtonTxt();
+  }, 1000);
+
+  button.addEventListener("click", nextQuestion);
+  const timeoutEvent = setTimeout(() => {
+    nextQuestion();
+  }, TIMEOUT);
+}
+
 function showFeedBack(isCorrect, correct, answer) {
-  const selectedAnswerId = answer.replaceAll(" ", "-").toLowerCase();
+  const selectedAnswerId = formatId(answer);
   const selectedElement = document.querySelector(
     `label[for="${selectedAnswerId}"]`
   );
 
-  const correctAnswerId = correct.replaceAll(" ", "-").toLowerCase();
+  const correctAnswerId = formatId(correct);
   const correctElement = document.querySelector(
     `label[for="${correctAnswerId}"]`
   );
