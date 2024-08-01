@@ -37,7 +37,7 @@ function startQuiz() {
 
   function submit() {
     const selectedAnswer = app.querySelector('input[name="answer"]:checked');
-    disableAnswer();
+    disableInputs();
     const value = selectedAnswer.value;
     console.log(Questions.length);
     console.log(currentQuestion - 1);
@@ -55,7 +55,7 @@ function startQuiz() {
     const message = feedBackMessage(isCorrect, question.correct);
     app.appendChild(message);
   }
-  function disableAnswer() {
+  function disableInputs() {
     const inputs = document.querySelectorAll('input[type="radio"]');
     for (const input of inputs) {
       input.disabled = true;
