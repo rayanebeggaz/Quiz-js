@@ -14,52 +14,64 @@ function startQuiz() {
     let answers = Questions[currentQuestion].answers;
 
     clear(app);
-    const js = document.createElement("h1");
-    const span = document.createElement("span");
-    span.innerText = "JS";
-    span.className = "js";
-
-    js.appendChild(span);
-    js.append(document.createTextNode(" Quiz"));
-    app.appendChild(js);
-
-    displayQuestion(currentQuestion);
-    buildAnswers(answers);
+    header(app);
+    displayQuestion(app, currentQuestion);
+    buildAnswers(app, answers);
+    const submitButton = addSubmitButton(app);
+    submitButton.addEventListener("click", submit(app));
   }
+}
 
-  function clear(app) {
-    while (app.firstChild) {
-      app.firstChild.remove();
-    }
+function clear(app) {
+  while (app.firstChild) {
+    app.firstChild.remove();
   }
+}
 
-  function displayQuestion(ind) {
-    const question = Questions[ind];
+function header(app) {
+  const js = document.createElement("h1");
+  const span = document.createElement("span");
+  span.innerText = "JS";
+  span.className = "js";
 
-    if (!question) {
-      //f
-    }
+  js.appendChild(span);
+  js.append(document.createTextNode(" Quiz"));
+  app.appendChild(js);
+}
 
-    const titre = getElementTitle(question.question);
-    app.appendChild(titre);
-  }
-  function buildAnswers(answers) {
-    const answerDiv = document.createElement("div");
-
-    answerDiv.className = "answers";
-
-    for (const answer of answers) {
-      const label = getAnswerElement(answer);
-      answerDiv.appendChild(label);
-    }
-    app.appendChild(answerDiv);
-  }
+function addSubmitButton(app) {
+  const submitButton = document.createElement("button");
+  submitButton.innerText = "submit";
+  app.appendChild(submitButton);
 }
 
 function submit() {
   const selectedAnswer = app.querySelector('input[name="answer"]:checked');
   const value = selectedAnswer.value;
 }
+function displayQuestion(app, ind) {
+  const question = Questions[ind];
+
+  if (!question) {
+    //f
+  }
+
+  const titre = getElementTitle(question.question);
+  app.appendChild(titre);
+}
+
+function buildAnswers(app, answers) {
+  const answerDiv = document.createElement("div");
+
+  answerDiv.className = "answers";
+
+  for (const answer of answers) {
+    const label = getAnswerElement(answer);
+    answerDiv.appendChild(label);
+  }
+  app.appendChild(answerDiv);
+}
+
 function getElementTitle(texte) {
   const element = document.createElement("h3");
   element.innerText = texte;
