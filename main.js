@@ -7,18 +7,48 @@ const startButton = document.querySelector("#start");
 startButton.addEventListener("click", startQuiz);
 
 function startQuiz() {
+  const app = document.querySelector("#app");
   let score = 0;
   let currentQuestion = 0;
-  const app = document.querySelector("#app");
-  for (currentQuestion; currentQuestion < Questions.length; currentQuestion++) {
-    let answers = Questions[currentQuestion].answers;
 
+  displayQuestion(app, currentQuestion);
+  function displayQuestion(app, currentQuestion) {
     clear(app);
     header(app);
-    displayQuestion(app, currentQuestion);
+    const question = Questions[currentQuestion];
+
+    if (!question) {
+      //f
+    }
+
+    const titre = getElementTitle(question.question);
+    app.appendChild(titre);
+
+    let answers = Questions[currentQuestion].answers;
     buildAnswers(app, answers);
+
     const submitButton = addSubmitButton(app);
-    submitButton.addEventListener("click", submit(app));
+    submitButton.addEventListener("click", submit);
+  }
+
+  function submit() {
+    const selectedAnswer = app.querySelector('input[name="answer"]:checked');
+    const value = selectedAnswer.value;
+    console.log(Questions.length);
+    console.log(currentQuestion - 1);
+
+    const question = Questions[currentQuestion];
+    const isCorrect = question.correct === value;
+    if (isCorrect) {
+      score++;
+    }
+    showFeedBack(isCorrect, question.correct, value);
+    const message = feedBackMessage(isCorrect, question.correct);
+    app.appendChild(message);
+    setTimeout(() => {
+      currentQuestion++;
+      displayQuestion(app, currentQuestion);
+    }, 4000);
   }
 }
 
@@ -43,21 +73,7 @@ function addSubmitButton(app) {
   const submitButton = document.createElement("button");
   submitButton.innerText = "submit";
   app.appendChild(submitButton);
-}
-
-function submit() {
-  const selectedAnswer = app.querySelector('input[name="answer"]:checked');
-  const value = selectedAnswer.value;
-}
-function displayQuestion(app, ind) {
-  const question = Questions[ind];
-
-  if (!question) {
-    //f
-  }
-
-  const titre = getElementTitle(question.question);
-  app.appendChild(titre);
+  return submitButton;
 }
 
 function buildAnswers(app, answers) {
@@ -88,8 +104,32 @@ function getAnswerElement(text) {
   label.htmlFor = id;
   input.setAttribute("type", "radio");
   input.setAttribute("name", "answer");
-  input.setAttribute("value", "text");
+  input.setAttribute("value", text);
   label.appendChild(input);
 
   return label;
+}
+
+function showFeedBack(isCorrect, correct, answer) {
+  const selectedAnswerId = answer.replaceAll(" ", "-").toLowerCase();
+  const selectedElement = document.querySelector(
+    `label[for="${selectedAnswerId}"]`
+  );
+
+  const correctAnswerId = correct.replaceAll(" ", "-").toLowerCase();
+  const correctElement = document.querySelector(
+    `label[for="${correctAnswerId}"]`
+  );
+  correctElement.classList.add("correct");
+  if (!isCorrect) {
+    selectedElement.classList.add("incorrect");
+  }
+}
+
+function feedBackMessage(isCorrect, correct) {
+  const paragraphe = document.createElement("p");
+  paragraphe.innerText = isCorrect
+    ? "Bonne repense  !"
+    : `La bonne repense était ${correct} `;
+  return paragraphe;
 }
