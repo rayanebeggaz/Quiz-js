@@ -37,6 +37,9 @@ function startQuiz() {
 
   function submit() {
     const selectedAnswer = app.querySelector('input[name="answer"]:checked');
+    if (selectedAnswer == null) {
+      return;
+    }
     disableInputs();
     const value = selectedAnswer.value;
     console.log(Questions.length);
